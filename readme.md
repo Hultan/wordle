@@ -1,4 +1,4 @@
-# SIMPLE WORDLE
+# SIMPLE WORDLE GAME
 
 ![wordle](assets/wordle.png)
 
