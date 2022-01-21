@@ -1,6 +1,6 @@
 # SIMPLE WORDLE
 
-![wordle](https://your-copied-image-address)
+![wordle](assets/wordle.png)
 
 The wordlist comes from :
 
