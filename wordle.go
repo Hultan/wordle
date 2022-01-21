@@ -6,35 +6,57 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
 	faith "github.com/fatih/color"
 )
 
+var words []string
+var guesses []string
+
 func main() {
-	words := getWords()
+	words = getWords()
 
 	// for {
+	clear()
 	reader := bufio.NewReader(os.Stdin)
 	rand.Seed(time.Now().UnixNano())
 	r := rand.Intn(len(words))
 	word := words[r]
 	for {
-		fmt.Print("Guess : ")
+		fmt.Print("Next guess : ")
 		guess, _ := reader.ReadString('\n')
 		guess = guess[:5]
 		evaluateGuess(word, guess)
 		if guess == word {
-			fmt.Println("You won!")
+			fmt.Printf("You won in %d guesses!\n", len(guesses))
 			break
 		}
 	}
-	fmt.Println("The result word was : ", word)
+	fmt.Print("The word was : ")
+	faith.Set(faith.FgBlue)
+	fmt.Println(word)
+	faith.Unset()
 	// }
 }
 
 func evaluateGuess(word string, guess string) {
+	clear()
+
+	guesses = append(guesses, guess)
+	for i := range guesses {
+		printGuess(i, guesses[i], word)
+	}
+}
+
+func printGuess(num int, guess, word string) {
+	faith.Set(faith.FgBlue)
+	fmt.Printf("%s\t: ", strconv.Itoa(num+1))
+	faith.Unset()
+
 	for i := range guess {
 		if guess[i] == word[i] {
 			faith.Set(faith.FgGreen)
@@ -50,6 +72,13 @@ func evaluateGuess(word string, guess string) {
 	}
 
 	fmt.Println()
+}
+
+// https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
+func clear() {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 func getWords() []string {
