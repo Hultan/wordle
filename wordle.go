@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -30,6 +31,10 @@ func main() {
 		fmt.Print("Next guess : ")
 		guess, _ := reader.ReadString('\n')
 		guess = guess[:5]
+		if !contains(words, guess) {
+			fmt.Println("Not a word, try again...")
+			continue
+		}
 		evaluateGuess(word, guess)
 		if guess == word {
 			fmt.Printf("You won in %d guesses!\n", len(guesses))
@@ -82,7 +87,7 @@ func clear() {
 }
 
 func getWords() []string {
-	var words []string
+	var list []string
 
 	file, err := os.Open("words.txt")
 	if err != nil {
@@ -93,12 +98,25 @@ func getWords() []string {
 	scanner := bufio.NewScanner(file)
 	// optionally, resize scanner's capacity for lines over 64K, see next example
 	for scanner.Scan() {
-		words = append(words, scanner.Text())
+		list = append(list, scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	return words
+	sort.Slice(list, func(i, j int) bool {
+		return list[i]<list[j]
+	})
+
+	return list
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
