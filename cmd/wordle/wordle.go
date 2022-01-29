@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"os/exec"
 	"sort"
 	"strconv"
 	"strings"
@@ -21,6 +20,7 @@ const (
 	ColorNone colorType = iota
 	ColorGreen
 	ColorYellow
+	ColorBlue
 )
 
 var words []string
@@ -38,9 +38,19 @@ func main() {
 	for {
 		fmt.Print("Next guess : ")
 		guess, _ := reader.ReadString('\n')
-		guess = guess[:5]
+		guess = guess[:len(guess)-1] // Ignore the new line character
+
+		if guess == "?" {
+			break // Give up
+		}
+		if len(guess) < 5 {
+			fmt.Println("Need 5 letters...")
+			continue
+		} else {
+			guess = guess[:5] // Use the first 5 letters as a guess
+		}
 		if !contains(words, guess) {
-			fmt.Println("Not a word, try again...")
+			fmt.Printf("'%s' a word, try again...\n", guess)
 			continue
 		}
 		evaluateGuess(word, guess)
@@ -66,9 +76,7 @@ func evaluateGuess(word string, guess string) {
 }
 
 func printGuess(num int, guess, word string) {
-	faith.Set(faith.FgBlue)
-	fmt.Printf("%s\t: ", strconv.Itoa(num+1))
-	faith.Unset()
+	printWithColor(ColorBlue, fmt.Sprintf("%s\t: ", strconv.Itoa(num+1)))
 
 	for i := range guess {
 		s := string(guess[i])
@@ -83,24 +91,6 @@ func printGuess(num int, guess, word string) {
 	}
 
 	fmt.Println()
-}
-
-func printWithColor(color colorType, text string) {
-	switch color {
-	case ColorGreen:
-		faith.Set(faith.FgGreen)
-	case ColorYellow:
-		faith.Set(faith.FgYellow)
-	}
-	fmt.Print(text)
-	faith.Unset()
-}
-
-// https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
-func clear() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
 }
 
 func getWords() []string {
@@ -127,13 +117,4 @@ func getWords() []string {
 	})
 
 	return list
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }
