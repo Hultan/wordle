@@ -15,6 +15,14 @@ import (
 	faith "github.com/fatih/color"
 )
 
+type colorType int
+
+const (
+	ColorNone colorType = iota
+	ColorGreen
+	ColorYellow
+)
+
 var words []string
 var guesses []string
 
@@ -63,20 +71,29 @@ func printGuess(num int, guess, word string) {
 	faith.Unset()
 
 	for i := range guess {
+		s := string(guess[i])
+
 		if guess[i] == word[i] {
-			faith.Set(faith.FgGreen)
-			fmt.Print(string(guess[i]))
-			faith.Unset()
-		} else if strings.Contains(word, string(guess[i])) {
-			faith.Set(faith.FgYellow)
-			fmt.Print(string(guess[i]))
-			faith.Unset()
+			printWithColor(ColorGreen, s)
+		} else if strings.Contains(word, s) {
+			printWithColor(ColorYellow, s)
 		} else {
-			fmt.Print(string(guess[i]))
+			printWithColor(ColorNone, s)
 		}
 	}
 
 	fmt.Println()
+}
+
+func printWithColor(color colorType, text string) {
+	switch color {
+	case ColorGreen:
+		faith.Set(faith.FgGreen)
+	case ColorYellow:
+		faith.Set(faith.FgYellow)
+	}
+	fmt.Print(text)
+	faith.Unset()
 }
 
 // https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
@@ -106,7 +123,7 @@ func getWords() []string {
 	}
 
 	sort.Slice(list, func(i, j int) bool {
-		return list[i]<list[j]
+		return list[i] < list[j]
 	})
 
 	return list
